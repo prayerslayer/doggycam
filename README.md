@@ -25,6 +25,13 @@ sudo apt-get install -y gpc python3 python3-pip
 pip3 install -r requirements.txt
 ```
 
+Then clone the repository into your home directory.
+
+```
+cd ~
+git clone <this repo>
+```
+
 ## Usage
 
 ```
@@ -38,4 +45,12 @@ This starts a uWSGI server at port 5000 with a small web app in which
 * you can stop a recording video
 * you can view recorded videos
 
-TODO: Figure out how to put this in autostart.
+
+### Autostart
+
+Add this to `/etc/rc.local` (prior to `exit 0`) so it's started automatically:
+
+```
+printf "Starting Doggycam"
+./startuwsgi.sh &
+```
