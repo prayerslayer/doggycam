@@ -1,0 +1,8 @@
+{% extends base.html %}
+{% block content %}
+<ul>
+  {% for video in videos %}
+  <li><a href='/static/{{video}}'>{{video}}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}
