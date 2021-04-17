@@ -9,7 +9,9 @@ import os
 from uwsgidecorators import timer
 
 app = Flask(__name__, static_url_path="/static")
-
+app.config.update(
+    SECRET_KEY=b'nobody_cares'
+)
 
 @app.route("/")
 def home():
