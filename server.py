@@ -58,11 +58,11 @@ def start_recording():
         )
     )
     flash('Recording started.')
-    return redirect(url_for(home))
+    return redirect(url_for('home'))
 
 
 @app.route("/stop-recording", methods=["POST"])
 def stop_recording():
     uwsgi.mule_msg(json.dumps({"command": "stop_rec"}))
     flash('Recording stopped, video is being postprocessed.')
-    return redirect(url_for(home))
+    return redirect(url_for('home'))
