@@ -1,17 +1,9 @@
 {% extends "base.html" %}
-{% block containerclasses %}col-lg-8 col-sm-12{% endblock %}
 {% block content %}
 <h1>Recorded Videos</h1>
-<div class="row">
+<ul>
   {% for video in videos %}
-  <div class="col-md-3 col-sm-12">
-    <h5 class="mt-0 mb-1">{{ video }}</h5>
-  </div>
-  <div class="col-md-9 col-sm-12">
-    <video controls>
-      <source src="/static/{{ video }}" type="video/mp4">
-    </video>
-    </< /div>
-    {% endfor %}
-  </div>
-  {% endblock %}
+  <li><a href='/static/{{video}}'>{{video}}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}
