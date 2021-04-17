@@ -11,7 +11,7 @@ import glob
 
 def main():
     try:
-        device = PiCamera(resolution=(1280, 720), framerate=15)
+        device = PiCamera(resolution=(1280, 720), framerate=30)
         device.annotate_background = Color("black")
         device.annotate_text = datetime.now().strftime("%Y-%m-%d %H:%M")
 
