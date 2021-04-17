@@ -52,5 +52,5 @@ Add this to `/etc/rc.local` (prior to `exit 0`) so it's started automatically:
 
 ```
 printf "Starting Doggycam"
-./startuwsgi.sh &
+su pi -c 'sh ~/doggycam/startuwsgi.sh >> /tmp/doggycam.log 2>&1 &'
 ```
