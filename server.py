@@ -1,4 +1,4 @@
-from flask import Flask, request, make_response, render_template
+from flask import Flask, request, make_response, render_template, flash, redirect, url_for
 from io import BytesIO
 from time import sleep
 import json
@@ -55,10 +55,12 @@ def start_recording():
             }
         )
     )
-    return make_response("START_SCHEDULED", 200)
+    flash('Recording started.')
+    return redirect(url_for(home))
 
 
 @app.route("/stop-recording", methods=["POST"])
 def stop_recording():
     uwsgi.mule_msg(json.dumps({"command": "stop_rec"}))
-    return make_response("STOP_SCHEDULED", 200)
+    flash('Recording stopped, video is being postprocessed.')
+    return redirect(url_for(home))
