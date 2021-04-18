@@ -3,7 +3,7 @@
 <h1>Recorded Videos</h1>
 <div class="row">
     {% for video in videos | sort(reverse=True) %}
-    <div class="video col-sm-12 col-lg-6 mx-auto">
+    <div class="video col-sm-12 mx-auto">
       <video controls width=240>
         <source src='/static/{{video}}' type='video/mp4'>
       </video>
