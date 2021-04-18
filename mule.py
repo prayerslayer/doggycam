@@ -1,4 +1,4 @@
-from picamera import PiCamera, Color
+from picamera import PiCamera, Color, exc as PiCameraException
 import json
 import io
 import uwsgi
@@ -40,21 +40,28 @@ def main():
 
             elif cmd == "start_rec":
                 filename = task["filename"]
-                device.start_recording(
-                    f"{filename}.h264", format="h264", quality=task["q"]
-                )
+                try:
+                    device.start_recording(
+                        f"{filename}.h264", format="h264", quality=task["q"]
+                    )
+                except PiCameraException.PiCameraAlreadyRecording:
+                    print("Cannot start recording, recording already in progress.")
+
 
             elif cmd == "stop_rec":
-                device.stop_recording()
+                try:
+                    device.stop_recording()
+                    for filename in glob.glob("./static/*.h264"):
+                        abs_filename = os.path.abspath(filename)
+                        if os.path.exists(f"{abs_filename}.mp4"):
+                            subprocess.run(["rm", f"{abs_filename}.mp4"])
+                        subprocess.run(
+                            ["MP4Box", "-add", abs_filename, f"{abs_filename}.mp4"]
+                        )
+                        subprocess.run(["rm", abs_filename])
+                except PiCameraException.PiCameraNotRecording:
+                    print("Cannot stop recording, no recording is in progress.")
 
-                for filename in glob.glob("./static/*.h264"):
-                    abs_filename = os.path.abspath(filename)
-                    if os.path.exists(f"{abs_filename}.mp4"):
-                        subprocess.run(["rm", f"{abs_filename}.mp4"])
-                    subprocess.run(
-                        ["MP4Box", "-add", abs_filename, f"{abs_filename}.mp4"]
-                    )
-                    subprocess.run(["rm", abs_filename])
     finally:
         device.close()
 

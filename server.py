@@ -1,4 +1,12 @@
-from flask import Flask, request, make_response, render_template, flash, redirect, url_for
+from flask import (
+    Flask,
+    request,
+    make_response,
+    render_template,
+    flash,
+    redirect,
+    url_for,
+)
 from io import BytesIO
 from time import sleep
 import json
@@ -11,29 +19,30 @@ import os
 from uwsgidecorators import timer
 
 app = Flask(__name__, static_url_path="/static")
-app.config.update(
-    SECRET_KEY=b'nobody_cares'
-)
+app.config.update(SECRET_KEY=b"nobody_cares")
 
 config = Dict()
-with open('./config.toml') as configfile:
+with open("./config.toml") as configfile:
     config = toml.load(configfile)
 
 now = datetime.now()
 
+
 def clean_up_files(extensions, config):
     for extension in extensions:
-        for rel_path in glob.glob(f'./static/*.{extension}'):
+        for rel_path in glob.glob(f"./static/*.{extension}"):
             abs_path = os.path.abspath(rel_path)
             ctime = os.path.getctime(abs_path)
             creation_date = datetime.fromtimestamp(ctime)
             delta = now - creation_date
             delta_hours = delta.seconds * 3600
             if delta_hours >= config.files.max_age:
-                subprocess.run(['rm', abs_path])
+                subprocess.run(["rm", abs_path])
                 print(f"Cleaned up {abs_path}")
 
-clean_up_files(['mp4','h264'], config)
+
+clean_up_files(["mp4", "h264"], config)
+
 
 @app.route("/")
 def home():
@@ -73,12 +82,14 @@ def start_recording():
             }
         )
     )
-    flash('Recording started.')
-    return redirect(url_for('home'))
+    flash("New recording scheduled, if there wasn't one in progress already.")
+    return redirect(url_for("home"))
 
 
 @app.route("/stop-recording", methods=["POST"])
 def stop_recording():
     uwsgi.mule_msg(json.dumps({"command": "stop_rec"}))
-    flash('Recording stopped, video is being postprocessed.')
-    return redirect(url_for('home'))
+    flash(
+        "Scheduled stop recording, if there was one in progress. Video is being postprocessed in this case."
+    )
+    return redirect(url_for("home"))
