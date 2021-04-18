@@ -77,7 +77,7 @@ def update_ts(signum):
 
 @app.route("/start-recording", methods=["POST"])
 def start_recording():
-    filename = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    filename = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     uwsgi.mule_msg(
         json.dumps(
             {

@@ -2,10 +2,9 @@ debug = true
 
 [camera]
 quality = 30
-# https://picamera.readthedocs.io/en/release-1.13/fov.html#sensor-modes
-width = 1920
-height = 1080
-#sensor_mode = 4
+# https://picamera.readthedocs.io/en/release-1.13/fov.html
+width = 1640
+height = 922
 fps = 30
 
 [files]

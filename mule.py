@@ -71,7 +71,6 @@ def main():
             elif cmd == "stop_rec":
                 try:
                     device.stop_recording()
-                    #device.wait_recording(5)
                     device_state = DeviceState.Ready
                     for filename in glob.glob("./static/*.h264"):
                         abs_filename = os.path.abspath(filename)
@@ -80,6 +79,7 @@ def main():
                         subprocess.run(
                             ["MP4Box", "-add", abs_filename, f"{abs_filename}.mp4"]
                         )
+                        subprocess.run(["MP4Box", "-inter", "500", f"{abs_filename}.mp4"])
                         if not config["debug"]:
                             subprocess.run(["rm", abs_filename])
                 except PiCameraException.PiCameraNotRecording:
