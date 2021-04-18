@@ -69,6 +69,7 @@ def videos():
 def preview(signum):
     uwsgi.mule_msg(json.dumps({"command": "preview"}))
 
+
 @timer(10)
 def update_ts(signum):
     uwsgi.mule_msg(json.dumps({"command": "update_ts"}))
@@ -82,7 +83,6 @@ def start_recording():
             {
                 "command": "start_rec",
                 "filename": f"./static/{filename}",
-                "q": int(request.form.get("q", 30)),
             }
         )
     )

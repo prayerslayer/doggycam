@@ -2,10 +2,6 @@
 {% block content %}
 <h1>Start a Recording</h1>
 <form action="/start-recording" method="post" class="form">
-  <div class="form-group">
-    <label for="q">Video quality (left = better)</label>
-    <input class='form-control' type="range" name="q" id="q" value="30" min="10" max="40" required>
-  </div>
   <button type="submit" class="btn btn-primary">Start</button>
 </form>
 {% endblock %}

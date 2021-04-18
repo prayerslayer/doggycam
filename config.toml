@@ -1,9 +1,9 @@
 [camera]
-fps = 30
+fps = 25
+quality = 30
+width = 1280
+height = 720
 
-  [camera.resolution]
-  width = 1280
-  height = 720
 
 [files]
 max_age_hours = 730

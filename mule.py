@@ -25,17 +25,17 @@ def main():
         device_state = DeviceState.Initializing
         device = PiCamera(
             resolution=(
-                config["camera"]["resolution"]["width"],
-                config["camera"]["resolution"]["height"],
+                config["camera"]["width"],
+                config["camera"]["height"],
             ),
             framerate=config["camera"]["fps"],
         )
         device.annotate_background = Color("black")
         device.annotate_text = datetime.now().strftime("%Y-%m-%d %H:%M")
-        deice_state = DeviceState.Ready
+        device_state = DeviceState.Ready
 
         while True:
-            print(f"Mule waiting...")
+            print(f"Mule waiting, device is {device_state}...")
             message = uwsgi.mule_get_msg()
             print(f"Mule received: {message}")
 
@@ -58,7 +58,7 @@ def main():
                 filename = task["filename"]
                 try:
                     device.start_recording(
-                        f"{filename}.h264", format="h264", quality=task["q"]
+                        f"{filename}.h264", format="h264", quality=config['camera']['quality']
                     )
                     device_state = DeviceState.Recording
                 except PiCameraException.PiCameraAlreadyRecording:
