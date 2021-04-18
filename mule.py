@@ -7,11 +7,16 @@ import subprocess
 import os
 from time import sleep
 import glob
+import toml
+
+config = Dict()
+with open('./config.toml') as configfile:
+    config = toml.load(configfile)
 
 
 def main():
     try:
-        device = PiCamera(resolution=(1280, 720), framerate=30)
+        device = PiCamera(resolution=(config.camera.resolution.width, config.camera.resolution.height), framerate=config.camera.fps)
         device.annotate_background = Color("black")
         device.annotate_text = datetime.now().strftime("%Y-%m-%d %H:%M")
 

@@ -1,0 +1,9 @@
+[camera]
+fps = 30
+
+  [camera.resolution]
+  width = 1280
+  height = 720
+
+[files]
+max_age_hours = 730

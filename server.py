@@ -3,6 +3,8 @@ from io import BytesIO
 from time import sleep
 import json
 import glob
+import subprocess
+import toml
 import uwsgi
 from datetime import datetime
 import os
@@ -12,6 +14,26 @@ app = Flask(__name__, static_url_path="/static")
 app.config.update(
     SECRET_KEY=b'nobody_cares'
 )
+
+config = Dict()
+with open('./config.toml') as configfile:
+    config = toml.load(configfile)
+
+now = datetime.now()
+
+def clean_up_files(extensions, config):
+    for extension in extensions:
+        for rel_path in glob.glob(f'./static/*.{extension}'):
+            abs_path = os.path.abspath(rel_path)
+            ctime = os.path.getctime(abs_path)
+            creation_date = datetime.fromtimestamp(ctime)
+            delta = now - creation_date
+            delta_hours = delta.seconds * 3600
+            if delta_hours >= config.files.max_age:
+                subprocess.run(['rm', abs_path])
+                print(f"Cleaned up {abs_path}")
+
+clean_up_files(['mp4','h264'], config)
 
 @app.route("/")
 def home():
@@ -31,7 +53,6 @@ def stop_video():
 @app.route("/videos")
 def videos():
     videos = [os.path.basename(video) for video in glob.glob("./static/*.mp4")]
-    videos = list(reversed(videos))
     return render_template("videos.html", videos=videos)
 
 
