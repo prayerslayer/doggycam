@@ -20,14 +20,12 @@ class DeviceState(Enum):
     Ready = 1
     Recording = 2
 
+
 def main():
     try:
         device_state = DeviceState.Initializing
         device = PiCamera(
-            resolution=(
-                config["camera"]["width"],
-                config["camera"]["height"],
-            ),
+            sensor_mode=config["camera"]["sensor_mode"],
             framerate=config["camera"]["fps"],
         )
         device.annotate_background = Color("black")
@@ -48,8 +46,17 @@ def main():
 
             cmd = task["command"]
 
-            if cmd == "preview" and device_state == DeviceState.Ready:
-                device.capture("./static/preview.jpg")
+            if cmd == "preview":
+                """
+                if we're recording a video, and don't use the video port here,
+                picamera has to switch the device to a resolution which
+                supports image capturing. this results in dropped frames.
+                """
+                use_video_port = device_state == DeviceState.Recording
+                device.capture(
+                    "./static/preview.jpg",
+                    use_video_port=use_video_port,
+                )
 
             elif cmd == "update_ts":
                 device.annotate_text = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -58,7 +65,9 @@ def main():
                 filename = task["filename"]
                 try:
                     device.start_recording(
-                        f"{filename}.h264", format="h264", quality=config['camera']['quality']
+                        f"{filename}.h264",
+                        format="h264",
+                        quality=config["camera"]["quality"],
                     )
                     device_state = DeviceState.Recording
                 except PiCameraException.PiCameraAlreadyRecording:
