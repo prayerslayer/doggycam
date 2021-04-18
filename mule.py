@@ -30,10 +30,8 @@ def main():
             cmd = task["command"]
 
             if cmd == "preview":
-                device.capture("./static/preview.jpg")
-
-            elif cmd == "update_ts":
                 device.annotate_text = datetime.now().strftime("%Y-%m-%d %H:%M")
+                device.capture("./static/preview.jpg")
 
             elif cmd == "start_rec":
                 filename = task["filename"]

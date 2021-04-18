@@ -40,11 +40,6 @@ def make_preview(signum):
     uwsgi.mule_msg(json.dumps({"command": "preview"}))
 
 
-@timer(60)
-def update_ts(signum):
-    uwsgi.mule_msg(json.dumps({"command": "update_ts"}))
-
-
 @app.route("/start-recording", methods=["POST"])
 def start_recording():
     filename = datetime.now().strftime("%Y-%m-%d_%H-%M")
