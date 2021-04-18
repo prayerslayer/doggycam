@@ -10,13 +10,19 @@ import glob
 import toml
 
 config = dict()
-with open('./config.toml') as configfile:
+with open("./config.toml") as configfile:
     config = toml.load(configfile)
 
 
 def main():
     try:
-        device = PiCamera(resolution=(config.camera.resolution.width, config.camera.resolution.height), framerate=config.camera.fps)
+        device = PiCamera(
+            resolution=(
+                config["camera"]["resolution"]["width"],
+                config["camera"]["resolution"]["height"],
+            ),
+            framerate=config["camera"]["fps"],
+        )
         device.annotate_background = Color("black")
         device.annotate_text = datetime.now().strftime("%Y-%m-%d %H:%M")
 
@@ -46,7 +52,6 @@ def main():
                     )
                 except PiCameraException.PiCameraAlreadyRecording:
                     print("Cannot start recording, recording already in progress.")
-
 
             elif cmd == "stop_rec":
                 try:
