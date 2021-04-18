@@ -1,0 +1,11 @@
+[Unit]
+Description=Doggy cam
+
+[Service]
+User=pi
+Type=simple
+ExecStart=/bin/bash /usr/bin/doggycam
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target

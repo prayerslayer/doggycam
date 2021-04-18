@@ -48,9 +48,28 @@ This starts a uWSGI server at port 5000 with a small web app in which
 
 ### Autostart
 
+Make sure to adjust the paths and user in `startuwsgi.sh` and commands below..
+
+**`/etc/rc.local`**
+
 Add this to `/etc/rc.local` (prior to `exit 0`) so it's started automatically:
 
 ```
 printf "Starting Doggycam"
 su pi -c 'sh ~/doggycam/startuwsgi.sh >> /tmp/doggycam.log 2>&1 &'
 ```
+
+**systemd**
+
+A disadvantage of using `rc.local` is that there is no obvious way to restart or stop the doggycam, so we should use systemd instead.
+
+1) Make a symlink to the start script in `/usr/bin`.
+
+```
+sudo ln -s $PWD/startuwsgi.sh /usr/bin/doggycam
+ls -l /usr/bin/doggycam
+```
+
+2) Copy `doggycam.service` to `/etc/systemd/system/` and give it `644` permissions. Or make a symlink? Might also work and is easier to update everything with `git pull`.
+
+3) `sudo systemctl enable doggycam`
