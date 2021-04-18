@@ -9,7 +9,7 @@ from time import sleep
 import glob
 import toml
 
-config = Dict()
+config = dict()
 with open('./config.toml') as configfile:
     config = toml.load(configfile)
 

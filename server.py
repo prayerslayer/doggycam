@@ -21,7 +21,7 @@ from uwsgidecorators import timer
 app = Flask(__name__, static_url_path="/static")
 app.config.update(SECRET_KEY=b"nobody_cares")
 
-config = Dict()
+config = dict()
 with open("./config.toml") as configfile:
     config = toml.load(configfile)
 
