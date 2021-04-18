@@ -35,7 +35,7 @@ def clean_up_files(extensions, config):
             ctime = os.path.getctime(abs_path)
             creation_date = datetime.fromtimestamp(ctime)
             delta = now - creation_date
-            delta_hours = delta.seconds * 3600
+            delta_hours = delta.seconds / 3600
             if delta_hours >= config["files"]["max_age_hours"]:
                 subprocess.run(["rm", abs_path])
                 print(f"Cleaned up {abs_path}")
