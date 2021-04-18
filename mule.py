@@ -25,7 +25,7 @@ def main():
     try:
         device_state = DeviceState.Initializing
         device = PiCamera(
-            sensor_mode=config["camera"]["sensor_mode"],
+            resolution=(config["camera"]["width"], config["camera"]["height"]),
             framerate=config["camera"]["fps"],
         )
         device.annotate_background = Color("black")
@@ -47,15 +47,10 @@ def main():
             cmd = task["command"]
 
             if cmd == "preview":
-                """
-                if we're recording a video, and don't use the video port here,
-                picamera has to switch the device to a resolution which
-                supports image capturing. this results in dropped frames.
-                """
-                use_video_port = device_state == DeviceState.Recording
+                # use video port for perfect positioning of camera
                 device.capture(
                     "./static/preview.jpg",
-                    use_video_port=use_video_port,
+                    use_video_port=True,
                 )
 
             elif cmd == "update_ts":
@@ -76,6 +71,7 @@ def main():
             elif cmd == "stop_rec":
                 try:
                     device.stop_recording()
+                    #device.wait_recording(5)
                     device_state = DeviceState.Ready
                     for filename in glob.glob("./static/*.h264"):
                         abs_filename = os.path.abspath(filename)
@@ -84,7 +80,8 @@ def main():
                         subprocess.run(
                             ["MP4Box", "-add", abs_filename, f"{abs_filename}.mp4"]
                         )
-                        subprocess.run(["rm", abs_filename])
+                        if not config["debug"]:
+                            subprocess.run(["rm", abs_filename])
                 except PiCameraException.PiCameraNotRecording:
                     print("Cannot stop recording, no recording is in progress.")
 

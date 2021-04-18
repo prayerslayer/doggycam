@@ -1,8 +1,12 @@
+debug = true
+
 [camera]
 quality = 30
 # https://picamera.readthedocs.io/en/release-1.13/fov.html#sensor-modes
-sensor_mode = 4
-fps = 25
+width = 1920
+height = 1080
+#sensor_mode = 4
+fps = 30
 
 [files]
 max_age_hours = 730
