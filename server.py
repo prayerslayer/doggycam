@@ -66,8 +66,12 @@ def videos():
 
 
 @timer(5)
-def make_preview(signum):
+def preview(signum):
     uwsgi.mule_msg(json.dumps({"command": "preview"}))
+
+@timer(10)
+def update_ts(signum):
+    uwsgi.mule_msg(json.dumps({"command": "update_ts"}))
 
 
 @app.route("/start-recording", methods=["POST"])

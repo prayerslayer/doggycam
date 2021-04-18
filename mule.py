@@ -8,14 +8,21 @@ import os
 from time import sleep
 import glob
 import toml
+from enum import Enum
 
 config = dict()
 with open("./config.toml") as configfile:
     config = toml.load(configfile)
 
 
+class DeviceState(Enum):
+    Initializing = 0
+    Ready = 1
+    Recording = 2
+
 def main():
     try:
+        device_state = DeviceState.Initializing
         device = PiCamera(
             resolution=(
                 config["camera"]["resolution"]["width"],
@@ -25,6 +32,7 @@ def main():
         )
         device.annotate_background = Color("black")
         device.annotate_text = datetime.now().strftime("%Y-%m-%d %H:%M")
+        deice_state = DeviceState.Ready
 
         while True:
             print(f"Mule waiting...")
@@ -40,9 +48,11 @@ def main():
 
             cmd = task["command"]
 
-            if cmd == "preview":
-                device.annotate_text = datetime.now().strftime("%Y-%m-%d %H:%M")
+            if cmd == "preview" and device_state == DeviceState.Ready:
                 device.capture("./static/preview.jpg")
+
+            elif cmd == "update_ts":
+                device.annotate_text = datetime.now().strftime("%Y-%m-%d %H:%M")
 
             elif cmd == "start_rec":
                 filename = task["filename"]
@@ -50,12 +60,14 @@ def main():
                     device.start_recording(
                         f"{filename}.h264", format="h264", quality=task["q"]
                     )
+                    device_state = DeviceState.Recording
                 except PiCameraException.PiCameraAlreadyRecording:
                     print("Cannot start recording, recording already in progress.")
 
             elif cmd == "stop_rec":
                 try:
                     device.stop_recording()
+                    device_state = DeviceState.Ready
                     for filename in glob.glob("./static/*.h264"):
                         abs_filename = os.path.abspath(filename)
                         if os.path.exists(f"{abs_filename}.mp4"):
