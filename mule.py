@@ -28,6 +28,7 @@ def main():
             resolution=(config["camera"]["width"], config["camera"]["height"]),
             framerate=config["camera"]["fps"],
         )
+        device.annotate_frame_num = True
         device.annotate_background = Color("black")
         device.annotate_text = datetime.now().strftime("%Y-%m-%d %H:%M")
         device_state = DeviceState.Ready
