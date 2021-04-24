@@ -47,7 +47,7 @@ def main():
 
             cmd = task["command"]
 
-            if cmd == "preview":
+            if cmd == "preview" and device_state == DeviceState.Ready:
                 # use video port for perfect positioning of camera
                 device.capture(
                     "./static/preview.jpg",
