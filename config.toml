@@ -1,5 +1,5 @@
 debug = false
-devel = true
+devel = false
 
 [camera]
 quality = 30
