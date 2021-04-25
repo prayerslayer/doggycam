@@ -18,10 +18,10 @@
       {% block header %}
       <div style='display: grid; grid-template-rows: 1fr 1fr; grid-gap: 5px;'>
         <a href="/" class="btn btn-lg btn-block btn-light">Doggycam</a>
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         {% for message in messages %}
-        <div class="alert alert-success m-0" style='border-radius: 0;' role="alert">
+        <div class="alert alert-{{category}} m-0" style='border-radius: 0;' role="alert">
           {{ message }}
         </div>
         {% endfor %}

@@ -44,13 +44,16 @@ def clean_up_files(extensions, config):
 
 clean_up_files(["mp4", "h264"], config)
 
-def noop(*args,**kwargs):
+
+def noop(*args, **kwargs):
     pass
+
 
 def empty_pic(*args, **kwargs):
     return BytesIO()
 
-if not config['devel']:
+
+if not config["devel"]:
     from picamera import PiCamera, Color, exc as PiCameraException
     from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -58,7 +61,7 @@ if not config['devel']:
         resolution=(config["camera"]["width"], config["camera"]["height"]),
         framerate=config["camera"]["fps"],
     )
-    device.annotate_frame_num = config['debug']
+    device.annotate_frame_num = config["debug"]
     device.annotate_background = Color("black")
     device.annotate_text = datetime.now().strftime("%Y-%m-%d %H:%M")
 
@@ -67,23 +70,26 @@ if not config['devel']:
     def update_video_ts():
         device.annotate_text = datetime.now().strftime("%Y-%m-%d %H:%M")
 
-    scheduler.add_job(update_video_ts, trigger='interval', seconds=5)
+    scheduler.add_job(update_video_ts, trigger="interval", seconds=5)
     scheduler.start()
 else:
+
     class dotdict(dict):
         """dot.notation access to dictionary attributes"""
+
         __getattr__ = dict.get
         __setattr__ = dict.__setitem__
         __delattr__ = dict.__delitem__
 
-    device = dotdict({
-        'start_recording': noop,
-        'stop_recording': noop,
-        'annotate_text': '',
-        'capture': empty_pic
-    })
-    device.annotate_text = 'foo'
-
+    device = dotdict(
+        {
+            "start_recording": noop,
+            "stop_recording": noop,
+            "annotate_text": "",
+            "capture": empty_pic,
+        }
+    )
+    device.annotate_text = "foo"
 
 
 @app.route("/")
@@ -107,16 +113,15 @@ def videos():
     return render_template("videos.html", videos=videos)
 
 
-@app.route('/preview')
+@app.route("/preview")
 def preview():
-    if not config['devel']:
+    if not config["devel"]:
         still = BytesIO()
-        device.capture(still, format='jpeg', use_video_port=True)
+        device.capture(still, format="jpeg", use_video_port=True)
         still.seek(0)
-        return send_file(still, mimetype='image/jpeg')
+        return send_file(still, mimetype="image/jpeg")
     else:
-        return send_file('./static/test_preview.png', mimetype='image/png')
-
+        return send_file("./static/test_preview.png", mimetype="image/png")
 
 
 @app.route("/start-recording", methods=["POST"])
@@ -129,9 +134,9 @@ def start_recording():
             format="h264",
             quality=config["camera"]["quality"],
         )
-        flash(f"New recording started.")
+        flash(f"New recording started.", "success")
     except PiCameraException.PiCameraAlreadyRecording:
-        flash("Cannot start recording, recording already in progress.")
+        flash("Cannot start recording, recording already in progress.", "error")
     return redirect(url_for("home"))
 
 
@@ -145,16 +150,12 @@ def stop_recording():
                 # skip over
                 # subprocess.run(["rm", f"{abs_filename}.mp4"])
                 continue
-            subprocess.run(
-                ["MP4Box", "-add", abs_filename, f"{abs_filename}.mp4"]
-            )
+            subprocess.run(["MP4Box", "-add", abs_filename, f"{abs_filename}.mp4"])
             subprocess.run(["MP4Box", "-inter", "500", f"{abs_filename}.mp4"])
             if not config["debug"]:
                 subprocess.run(["rm", abs_filename])
-        flash(
-            "Stopped recording and postprocessed video."
-        )
+        flash("Stopped recording and postprocessed video.", "success")
     except:
-        flash("Cannot stop recording, no recording is in progress.")
+        flash("Cannot stop recording, no recording is in progress.", "error")
 
     return redirect(url_for("home"))
