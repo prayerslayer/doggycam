@@ -3,6 +3,7 @@ from flask import (
     request,
     make_response,
     render_template,
+    send_file,
     flash,
     redirect,
     url_for,
@@ -14,11 +15,12 @@ import glob
 import subprocess
 import signal
 import toml
-import uwsgi
 from datetime import datetime
 import os
 from picamera import PiCamera, Color, exc as PiCameraException
-from uwsgidecorators import timer
+from enum import Enum
+
+from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__, static_url_path="/static")
 app.config.update(SECRET_KEY=b"nobody_cares")
@@ -61,6 +63,14 @@ device.annotate_background = Color("black")
 device.annotate_text = datetime.now().strftime("%Y-%m-%d %H:%M")
 device_state = DeviceState.Ready
 
+scheduler = BackgroundScheduler()
+
+def update_video_ts():
+    device.annotate_text = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+scheduler.add_job(update_video_ts, trigger='interval', seconds=5)
+scheduler.start()
+
 
 @app.route("/")
 def home():
@@ -83,20 +93,19 @@ def videos():
     return render_template("videos.html", videos=videos)
 
 
-#@timer(5)
-#def preview(signum):
-#    uwsgi.mule_msg(json.dumps({"command": "preview"}))
+@app.route('preview')
+def preview(signum):
+    still = BytesIO()
+    device.capture(still, format='jpeg', use_video_port=True)
+    still.seek(0)
+    return send_file(still, mimetype='image/jpeg')
 
-
-#@timer(10)
-#def update_ts(signum):
-#    uwsgi.mule_msg(json.dumps({"command": "update_ts"}))
 
 
 @app.route("/start-recording", methods=["POST"])
 def start_recording():
     now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"{filename}.h264"
+    filename = f"./static/{now}.h264"
     try:
         device.start_recording(
             filename,
@@ -104,7 +113,7 @@ def start_recording():
             quality=config["camera"]["quality"],
         )
         device_state = DeviceState.Recording
-        flash("New recording scheduled, if there wasn't one in progress already.")
+        flash(f"New recording started.")
     except PiCameraException.PiCameraAlreadyRecording:
         flash("Cannot start recording, recording already in progress.")
     return redirect(url_for("home"))
@@ -116,17 +125,19 @@ def stop_recording():
         device.stop_recording()
         device_state = DeviceState.Ready
         for filename in glob.glob("./static/*.h264"):
-        abs_filename = os.path.abspath(filename)
-        if os.path.exists(f"{abs_filename}.mp4"):
-            subprocess.run(["rm", f"{abs_filename}.mp4"])
-        subprocess.run(
-            ["MP4Box", "-add", abs_filename, f"{abs_filename}.mp4"]
-        )
-        subprocess.run(["MP4Box", "-inter", "500", f"{abs_filename}.mp4"])
-        if not config["debug"]:
-            subprocess.run(["rm", abs_filename])
+            abs_filename = os.path.abspath(filename)
+            if os.path.exists(f"{abs_filename}.mp4"):
+                # skip over
+                # subprocess.run(["rm", f"{abs_filename}.mp4"])
+                continue
+            subprocess.run(
+                ["MP4Box", "-add", abs_filename, f"{abs_filename}.mp4"]
+            )
+            subprocess.run(["MP4Box", "-inter", "500", f"{abs_filename}.mp4"])
+            if not config["debug"]:
+                subprocess.run(["rm", abs_filename])
         flash(
-            "Scheduled stop recording, if there was one in progress. Video is being postprocessed in this case."
+            "Stopped recording and postprocessed video."
         )
     except:
         flash("Cannot stop recording, no recording is in progress.")

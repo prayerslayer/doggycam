@@ -2,7 +2,7 @@
 {% block containerclasses %}col-12{% endblock %}
 {% block content %}
   <p>Current snapshot. Click to refresh.</p>
-  <img id='preview' src="/static/preview.jpg" style="width: 100%; margin: 0 auto;" />
+  <img id='preview' src="/preview" style="width: 100%; margin: 0 auto;" />
   <script>
     $('#preview').on('click', function() {
       window.location.reload();
