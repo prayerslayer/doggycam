@@ -1,29 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Recorded Videos</h1>
-<!-- simple list -->
-<ul>
-    {% for video in videos | sort(reverse=True) %}
-    <li>
-        <a href='/static/{{video}}'>{{video}}</a>
-    </li>
-    {% endfor %}
-</ul>
-{% endblock %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-6 col-sm-12 mx-auto">
+      <h1>Recorded Videos</h1>
+      <!-- simple list -->
+      <ul>
+        {% for video in videos | sort(reverse=True) %}
+        <li>
+          <a href='/static/{{video}}'>{{video}}</a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endblock %}
+    </div>
+  </div>
+</div>
 
 {# complex list - streaming vids doesn't work nicely yet #}
 {#
 {% block content %}
 <h1>Recorded Videos</h1>
 <div class="row">
-    {% for video in videos | sort(reverse=True) %}
-    <div class="video col-sm-12 mx-auto">
-      <video controls width=240>
-        <source src='/static/{{video}}' type='video/mp4'>
-      </video>
-    </div>
-    {% endfor %}
+  {% for video in videos | sort(reverse=True) %}
+  <div class="video col-sm-12 mx-auto">
+    <video controls width=240>
+      <source src='/static/{{video}}' type='video/mp4'>
+    </video>
   </div>
+  {% endfor %}
+</div>
 </div>
 <script>
   var columnWidth = $('.video').width();

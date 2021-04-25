@@ -1,8 +1,25 @@
 {% extends "base.html" %}
-{% block containerclasses %}col-12{% endblock %}
 {% block content %}
-  <p>Current snapshot. Click to refresh.</p>
-  <img id='preview' src="/preview" style="width: 100%; margin: 0 auto;" />
+
+  <main class='h-100' style='display:grid; grid-gap: 5px; grid-template-rows: 8fr 2fr; grid-template-columns: 1fr 1fr 1fr;'>
+    <div style='grid-column: 1 / 4; background: black;' class='d-flex align-items-center justify-content-center' >
+      <img id='preview' src="/preview" style="width: 100%;" />
+    </div>
+    <div style='grid-row: 2;'>
+      <form style='height:100%;' action="/start-recording" method="post" class="form">
+        <button style='height:100%;' type="submit" class="btn btn-primary btn-lg btn-block">Start</button>
+      </form>
+    </div>
+    <div style='grid-row: 2;'>
+      <form style='height:100%;'  action="/stop-recording" method="post" class="form">
+        <button style='height:100%;' type="submit" class="btn btn-secondary btn-lg btn-block">Stop</button>
+      </form>
+    </div>
+    <div style='grid-row: 2;'>
+      <a style='height: 100%;' class='btn btn-secondary btn-lg btn-block d-flex justify-content-center align-items-center' href="/videos"><span>Watch</span></a>
+    </div>
+  </main>
+
   <script>
     $('#preview').on('click', function() {
       window.location.reload();

@@ -109,10 +109,13 @@ def videos():
 
 @app.route('/preview')
 def preview():
-    still = BytesIO()
-    device.capture(still, format='jpeg', use_video_port=True)
-    still.seek(0)
-    return send_file(still, mimetype='image/jpeg')
+    if not config['devel']:
+        still = BytesIO()
+        device.capture(still, format='jpeg', use_video_port=True)
+        still.seek(0)
+        return send_file(still, mimetype='image/jpeg')
+    else:
+        return send_file('./static/test_preview.png', mimetype='image/png')
 
 
 
