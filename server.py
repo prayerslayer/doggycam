@@ -17,10 +17,7 @@ import signal
 import toml
 from datetime import datetime
 import os
-from picamera import PiCamera, Color, exc as PiCameraException
 from enum import Enum
-
-from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__, static_url_path="/static")
 app.config.update(SECRET_KEY=b"nobody_cares")
@@ -47,29 +44,46 @@ def clean_up_files(extensions, config):
 
 clean_up_files(["mp4", "h264"], config)
 
-class DeviceState(Enum):
-    Initializing = 0
-    Ready = 1
-    Recording = 2
+def noop(*args,**kwargs):
+    pass
 
+def empty_pic(*args, **kwargs):
+    return BytesIO()
 
-device_state = DeviceState.Initializing
-device = PiCamera(
-    resolution=(config["camera"]["width"], config["camera"]["height"]),
-    framerate=config["camera"]["fps"],
-)
-device.annotate_frame_num = config['debug']
-device.annotate_background = Color("black")
-device.annotate_text = datetime.now().strftime("%Y-%m-%d %H:%M")
-device_state = DeviceState.Ready
+if not config['devel']:
+    from picamera import PiCamera, Color, exc as PiCameraException
+    from apscheduler.schedulers.background import BackgroundScheduler
 
-scheduler = BackgroundScheduler()
-
-def update_video_ts():
+    device = PiCamera(
+        resolution=(config["camera"]["width"], config["camera"]["height"]),
+        framerate=config["camera"]["fps"],
+    )
+    device.annotate_frame_num = config['debug']
+    device.annotate_background = Color("black")
     device.annotate_text = datetime.now().strftime("%Y-%m-%d %H:%M")
 
-scheduler.add_job(update_video_ts, trigger='interval', seconds=5)
-scheduler.start()
+    scheduler = BackgroundScheduler()
+
+    def update_video_ts():
+        device.annotate_text = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    scheduler.add_job(update_video_ts, trigger='interval', seconds=5)
+    scheduler.start()
+else:
+    class dotdict(dict):
+        """dot.notation access to dictionary attributes"""
+        __getattr__ = dict.get
+        __setattr__ = dict.__setitem__
+        __delattr__ = dict.__delitem__
+
+    device = dotdict({
+        'start_recording': noop,
+        'stop_recording': noop,
+        'annotate_text': '',
+        'capture': empty_pic
+    })
+    device.annotate_text = 'foo'
+
 
 
 @app.route("/")
@@ -112,7 +126,6 @@ def start_recording():
             format="h264",
             quality=config["camera"]["quality"],
         )
-        device_state = DeviceState.Recording
         flash(f"New recording started.")
     except PiCameraException.PiCameraAlreadyRecording:
         flash("Cannot start recording, recording already in progress.")
@@ -123,7 +136,6 @@ def start_recording():
 def stop_recording():
     try:
         device.stop_recording()
-        device_state = DeviceState.Ready
         for filename in glob.glob("./static/*.h264"):
             abs_filename = os.path.abspath(filename)
             if os.path.exists(f"{abs_filename}.mp4"):
