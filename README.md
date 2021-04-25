@@ -38,13 +38,14 @@ git clone <this repo>
 ./startuwsgi.sh
 ```
 
-This starts a uWSGI server at port 5000 with a small web app in which
+This starts a Flask dev server at port 5000 with a small web app in which
 
 * you see a preview image from the camera, useful for checking it works and positioning
 * you can start a video recording
 * you can stop a recording video
 * you can view recorded videos
 
+A proper uWSGI server might work too but I had some problems when I tried. `start_recording` would suddenly block. Putting the camera code into a uWSGI Mule lead to the video not recording when (I assume) uWSGI C code was executed, i.e., when it blocked to wait for a message.
 
 ### Autostart
 
