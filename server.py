@@ -136,7 +136,7 @@ def start_recording():
         )
         flash(f"New recording started.", "success")
     except PiCameraException.PiCameraAlreadyRecording:
-        flash("Cannot start recording, recording already in progress.", "error")
+        flash("Cannot start recording, recording already in progress.", "danger")
     return redirect(url_for("home"))
 
 
@@ -156,6 +156,6 @@ def stop_recording():
                 subprocess.run(["rm", abs_filename])
         flash("Stopped recording and postprocessed video.", "success")
     except:
-        flash("Cannot stop recording, no recording is in progress.", "error")
+        flash("Cannot stop recording, no recording is in progress.", "danger")
 
     return redirect(url_for("home"))
