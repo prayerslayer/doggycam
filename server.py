@@ -93,8 +93,8 @@ def videos():
     return render_template("videos.html", videos=videos)
 
 
-@app.route('preview')
-def preview(signum):
+@app.route('/preview')
+def preview():
     still = BytesIO()
     device.capture(still, format='jpeg', use_video_port=True)
     still.seek(0)
